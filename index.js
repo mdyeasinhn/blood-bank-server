@@ -19,7 +19,7 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
 
-// Verify Token Middleware
+// verify Token middleware
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token
   console.log(token)
@@ -47,6 +47,8 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    // mongodb collaction 
+    const requestsCollection = client.db('bloodBank').collection('requests')
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -75,7 +77,17 @@ async function run() {
       } catch (err) {
         res.status(500).send(err)
       }
+    });
+
+
+    // donation reqest related api 
+    app.post('/request', async (req, res) => {
+      const request = req.body;
+      const result = await requestsCollection.insertOne(request);
+      res.send(result);
     })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
@@ -83,7 +95,7 @@ async function run() {
       'Pinged your deployment. You successfully connected to MongoDB!'
     )
   } finally {
-    // Ensures that the client will close when you finish/error
+
   }
 }
 run().catch(console.dir)
