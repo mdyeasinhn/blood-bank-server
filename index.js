@@ -48,7 +48,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // mongodb collaction 
-    const requestsCollection = client.db('bloodBank').collection('requests')
+    const requestsCollection = client.db('bloodBank').collection('requests');
+    const usersCollection = client.db("bloodBank").collection('users');
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -79,6 +80,24 @@ async function run() {
       }
     });
 
+    // save a user data 
+    app.put('/user', async (req, res) => {
+      const user = req.body;
+      const query = { email: user?.email }
+    
+           // save the user for the first time
+           const options = { upsert: true };
+           const updateDoc = {
+             $set: {
+               ...user,
+               timestamp: Date.now(),
+     
+             }
+           }
+           const result = await usersCollection.updateOne(query, updateDoc, options);
+           res.send(result)
+         })
+
 
     // donation reqest related api 
     app.post('/request', async (req, res) => {
@@ -87,6 +106,26 @@ async function run() {
       res.send(result);
     })
 
+
+    // get all donation request
+    app.get('/all-requests', async (req, res) => {
+      const result = await requestsCollection.find().toArray();
+      res.send(result)
+    });
+
+    // Get a single request data from db using id
+    app.get('/request/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await requestsCollection.findOne(query)
+      res.send(result)
+    });
+
+      // Get all users data
+      app.get('/users',  async (req, res) => {
+        const result = await usersCollection.find().toArray()
+        res.send(result)
+      })
 
 
     // Send a ping to confirm a successful connection
