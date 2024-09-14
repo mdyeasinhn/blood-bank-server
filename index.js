@@ -50,6 +50,7 @@ async function run() {
     // mongodb collaction 
     const requestsCollection = client.db('bloodBank').collection('requests');
     const usersCollection = client.db("bloodBank").collection('users');
+    const blogsCollection = client.db("bloodBank").collection('blogs');
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -80,23 +81,47 @@ async function run() {
       }
     });
 
+
+     // get a user info by email from db
+     app.get('/user/:email', async (req, res) => {
+      const email = req.params.email
+      const result = await usersCollection.findOne({ email })
+      res.send(result)
+    })
+
+       // update a user role
+       app.patch('/users/update/:email', async(req, res) => {
+        const email = req.params.email;
+        const user = req.body;
+        const query = {email};
+        const updateDoc = {
+          $set:{ ...user, timestamp: Date.now()}
+        }
+        const result = await usersCollection.updateOne(query, updateDoc);
+        res.send(result)
+         
+      })
+
+
+
+      
     // save a user data 
     app.put('/user', async (req, res) => {
       const user = req.body;
       const query = { email: user?.email }
-    
-           // save the user for the first time
-           const options = { upsert: true };
-           const updateDoc = {
-             $set: {
-               ...user,
-               timestamp: Date.now(),
-     
-             }
-           }
-           const result = await usersCollection.updateOne(query, updateDoc, options);
-           res.send(result)
-         })
+
+      // save the user for the first time
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ...user,
+          timestamp: Date.now(),
+
+        }
+      }
+      const result = await usersCollection.updateOne(query, updateDoc, options);
+      res.send(result)
+    })
 
 
     // donation reqest related api 
@@ -105,7 +130,14 @@ async function run() {
       const result = await requestsCollection.insertOne(request);
       res.send(result);
     })
-
+    // Add a blog form db
+    app.put('/add-blog', async (req, res) => {
+      const request = req.body;
+      const result = await blogsCollection.insertOne(request);
+      res.send(result);
+    })
+    
+  
 
     // get all donation request
     app.get('/all-requests', async (req, res) => {
@@ -121,11 +153,13 @@ async function run() {
       res.send(result)
     });
 
-      // Get all users data
-      app.get('/users',  async (req, res) => {
-        const result = await usersCollection.find().toArray()
-        res.send(result)
-      })
+   
+
+    // Get all users data
+    app.get('/users', async (req, res) => {
+      const result = await usersCollection.find().toArray()
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
