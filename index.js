@@ -142,6 +142,18 @@ async function run() {
       res.send(result);
     })
 
+    app.patch('/blog/update/:id', async(req, res) => {
+      const id = req.params.id;
+      const blog = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set:{ ...blog}
+      }
+      const result = await blogsCollection.updateOne(query, updateDoc);
+      res.send(result)
+       
+    })
+
     // get all donation request
     app.get('/all-requests', async (req, res) => {
       const result = await requestsCollection.find().toArray();
