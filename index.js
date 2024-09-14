@@ -137,7 +137,10 @@ async function run() {
       res.send(result);
     })
     
-  
+    app.get('/all-blogs', async(req, res) => {
+      const result = await blogsCollection.find().toArray();
+      res.send(result);
+    })
 
     // get all donation request
     app.get('/all-requests', async (req, res) => {
