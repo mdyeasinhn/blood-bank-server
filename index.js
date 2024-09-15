@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000
 
 // middleware
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', "https://bloodaid-272ba.web.app", "https://bloodaid-272ba.firebaseapp.com"],
   credentials: true,
   optionSuccessStatus: 200,
 }
@@ -167,6 +167,18 @@ async function run() {
       res.send(result)
 
     })
+
+
+  
+
+    app.get('/my-requests/:email', async (req, res) => {
+      const email = req.params.email;
+    
+      // Update query to filter based on requester.email
+      let query = { 'requester.email': email };
+      const result = await requestsCollection.find(query).toArray();
+      res.send(result);
+    });
 
     // get all donation request
     app.get('/all-requests', async (req, res) => {
