@@ -82,29 +82,29 @@ async function run() {
     });
 
 
-     // get a user info by email from db
-     app.get('/user/:email', async (req, res) => {
+    // get a user info by email from db
+    app.get('/user/:email', async (req, res) => {
       const email = req.params.email
       const result = await usersCollection.findOne({ email })
       res.send(result)
     })
 
-       // update a user role
-       app.patch('/users/update/:email', async(req, res) => {
-        const email = req.params.email;
-        const user = req.body;
-        const query = {email};
-        const updateDoc = {
-          $set:{ ...user, timestamp: Date.now()}
-        }
-        const result = await usersCollection.updateOne(query, updateDoc);
-        res.send(result)
-         
-      })
+    // update a user role
+    app.patch('/users/update/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const query = { email };
+      const updateDoc = {
+        $set: { ...user, timestamp: Date.now() }
+      }
+      const result = await usersCollection.updateOne(query, updateDoc);
+      res.send(result)
+
+    })
 
 
 
-      
+
     // save a user data 
     app.put('/user', async (req, res) => {
       const user = req.body;
@@ -135,23 +135,37 @@ async function run() {
       const request = req.body;
       const result = await blogsCollection.insertOne(request);
       res.send(result);
+    });
+
+    app.patch('/donation/update/:id', async (req, res) => {
+      const id = req.params.id;
+      const { status, userInfo } = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: status,
+          userInfo: userInfo,
+        },
+      };
+      const result = await requestsCollection.updateOne(filter, updateDoc);
+      res.send(result)
     })
-    
-    app.get('/all-blogs', async(req, res) => {
+
+    app.get('/all-blogs', async (req, res) => {
       const result = await blogsCollection.find().toArray();
       res.send(result);
     })
 
-    app.patch('/blog/update/:id', async(req, res) => {
+    app.patch('/blog/update/:id', async (req, res) => {
       const id = req.params.id;
       const blog = req.body;
       const query = { _id: new ObjectId(id) };
       const updateDoc = {
-        $set:{ ...blog}
+        $set: { ...blog }
       }
       const result = await blogsCollection.updateOne(query, updateDoc);
       res.send(result)
-       
+
     })
 
     // get all donation request
@@ -168,7 +182,7 @@ async function run() {
       res.send(result)
     });
 
-   
+
 
     // Get all users data
     app.get('/users', async (req, res) => {
