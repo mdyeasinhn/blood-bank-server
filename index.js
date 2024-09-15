@@ -169,7 +169,14 @@ async function run() {
     })
 
 
-  
+    app.get('/my-donation/:email', async (req, res) => {
+      const email = req.params.email;
+
+      let query = { 'userInfo.donorEmail': email };
+      const result = await requestsCollection.find(query).toArray();
+      res.send(result);
+
+    });
 
     app.get('/my-requests/:email', async (req, res) => {
       const email = req.params.email;
